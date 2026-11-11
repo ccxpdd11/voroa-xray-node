@@ -1,10 +1,8 @@
-# Route B (DEPLOY_MEMORY.md Sec.5): multi-stage, official xray image -> Alpine with shell.
-# If the COPY path ever changes, entrypoint.sh still downloads the official
-# release at runtime, so the image stays bootable.
-FROM ghcr.io/xtls/xray-core:v26.11.9 AS xray
+# Single-stage Alpine; the xray binary is downloaded at runtime by
+# entrypoint.sh (curl + unzip). Avoids the ghcr.io multi-stage COPY,
+# which failed on Voroa's builder.
 FROM alpine:3.20
 RUN apk add --no-cache ca-certificates curl unzip
-COPY --from=xray /usr/local/bin/xray /usr/local/bin/xray
 WORKDIR /app
 COPY entrypoint.sh ./
 RUN chmod +x entrypoint.sh
